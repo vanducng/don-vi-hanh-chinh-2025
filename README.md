@@ -1,6 +1,6 @@
 # Đơn vị hành chính 2025 - VnExpress Data Crawler
 
-Web crawler để thu thập dữ liệu về việc sắp xếp lại các đơn vị hành chính cấp xã từ VnExpress.
+Web crawler để thu thập dữ liệu về việc sắp xếp lại các đơn vị hành chính cấp xã từ **VnExpress**: https://vnexpress.net/tra-cuu-3-321-phuong-xa-tren-ca-nuoc-sau-sap-xep-4903454.html
 
 ## Mô tả
 
@@ -9,6 +9,23 @@ Script này crawl dữ liệu từ trang tra cứu của VnExpress về 3.321 ph
 - **Tỉnh/Thành phố**: Đơn vị hành chính cấp tỉnh
 - **Phường, xã mới**: Tên phường/xã sau khi sắp xếp
 - **Phường, xã trước sáp nhập**: Danh sách các phường/xã trước khi sắp xếp
+
+## Dữ liệu mẫu
+
+Dưới đây là 10 hàng đầu từ dữ liệu đã crawl:
+
+| Tỉnh | Phường, xã mới | Phường, xã trước sáp nhập |
+|-------|----------------|---------------------------|
+| An Giang | An Biên | Thị trấn Thứ Ba, Xã Đông Yên, Xã Hưng Yên |
+| An Giang | An Châu | Thị trấn An Châu, Xã Hòa Bình Thạnh, Xã Vĩnh Thành |
+| An Giang | An Cư | Xã Văn Giáo, Xã Vĩnh Trung, Xã An Cư |
+| An Giang | An Minh | Thị trấn Thứ Mười Một, Xã Đông Hưng, Xã Đông Hưng B |
+| An Giang | An Phú | Thị trấn An Phú, Xã Vĩnh Hội Đông, Xã Phú Hội, Xã Phước Hưng |
+| An Giang | Ba Chúc | Thị trấn Ba Chúc, Xã Lạc Quới, Xã Lê Trì |
+| An Giang | Bình An | Xã Bình An (huyện Châu Thành), Xã Vĩnh Hòa Hiệp, Xã Vĩnh Hòa Phú |
+| An Giang | Bình Đức | Phường Bình Khánh, Phường Bình Đức, Xã Mỹ Khánh |
+| An Giang | Bình Giang | Không sáp nhập |
+| An Giang | Bình Hòa | Xã Bình Thạnh, Xã An Hòa, Xã Bình Hòa |
 
 ## Yêu cầu hệ thống
 
