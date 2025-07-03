@@ -7,7 +7,7 @@ Web crawler để thu thập dữ liệu về việc sắp xếp lại các đơ
 Script này crawl dữ liệu từ trang tra cứu của VnExpress về 3.321 phường, xã trên cả nước sau sắp xếp. Dữ liệu bao gồm:
 
 - **Tỉnh/Thành phố**: Đơn vị hành chính cấp tỉnh
-- **Phường, xã mới**: Tên phường/xã sau khi sắp xếp  
+- **Phường, xã mới**: Tên phường/xã sau khi sắp xếp
 - **Phường, xã trước sáp nhập**: Danh sách các phường/xã trước khi sắp xếp
 
 ## Yêu cầu hệ thống
@@ -44,6 +44,7 @@ uv run crawl.py
 ```
 
 Script sẽ tự động:
+
 - Cài đặt các dependencies cần thiết
 - Khởi tạo Chrome driver
 - Crawl dữ liệu từ tất cả 333 trang
@@ -85,16 +86,19 @@ Bắc Ninh,An Lạc,"Xã Lệ Viễn, Xã An Lạc"
 ## Tính năng
 
 ### ✅ Crawling đáng tin cậy
+
 - **Retry logic**: 5 lần thử lại cho mỗi thao tác
 - **Exponential backoff**: Tăng dần thời gian chờ giữa các lần thử
 - **JavaScript navigation**: Sử dụng JavaScript click để điều hướng đáng tin cậy
 
 ### ✅ Theo dõi tiến trình
+
 - **Real-time logging**: Hiển thị tiến trình trên console và file
 - **Progress tracking**: Lưu dữ liệu sau mỗi trang
 - **Error handling**: Ghi log chi tiết các lỗi xảy ra
 
 ### ✅ Hiệu suất cao
+
 - **Headless browser**: Chạy Chrome ở chế độ ẩn
 - **Optimized options**: Tối ưu Chrome options cho performance
 - **Smart waiting**: Chờ đợi thông minh cho dynamic content
@@ -115,11 +119,13 @@ don-vi-hanh-chinh-2025/
 ### Lỗi thường gặp
 
 1. **Chrome driver không tìm thấy**
+
    ```
    Solution: Script tự động tải Chrome driver, đảm bảo Chrome browser đã được cài đặt
    ```
 
 2. **Timeout khi load trang**
+
    ```
    Solution: Script có retry logic, sẽ tự động thử lại 5 lần
    ```
@@ -150,7 +156,3 @@ Dữ liệu được crawl từ bảng tương tác Flourish embed trong trang V
 - Script tuân thủ robots.txt và có delay hợp lý giữa các request
 - Dữ liệu được lưu với encoding UTF-8 để hỗ trợ tiếng Việt
 - Log file được ghi đè mỗi lần chạy mới để tránh tích lũy dung lượng
-
-## Liên hệ
-
-Nếu gặp vấn đề, vui lòng tạo issue hoặc liên hệ qua email.
