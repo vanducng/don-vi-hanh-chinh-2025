@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bản đồ Đơn vị Hành chính Việt Nam 2025</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>Bản đồ Đơn vị Hành chính Việt Nam 2025</h1>
+            <p class="subtitle">Tra cứu 3.321 phường, xã trên cả nước sau sắp xếp</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Statistics Overview -->
+            <section class="statistics-overview">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-units">0</div>
+                    <div class="stat-label">Tổng đơn vị</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-provinces">0</div>
+                    <div class="stat-label">Tỉnh/Thành phố</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="merged-units">0</div>
+                    <div class="stat-label">Đơn vị sáp nhập</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="unchanged-units">0</div>
+                    <div class="stat-label">Không thay đổi</div>
+                </div>
+            </section>
+
+            <!-- Search and Download Section -->
+            <section class="search-section">
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Tìm kiếm phường, xã, tỉnh..." class="search-box">
+                    <button id="download-csv" class="download-btn" title="Tải xuống dữ liệu CSV">
+                        <span>⬇</span>
+                        <span>CSV</span>
+                    </button>
+                </div>
+                <div id="search-results" class="search-results"></div>
+            </section>
+
+            <!-- Map and Charts Container -->
+            <div class="content-grid">
+                <!-- Map Section -->
+                <section class="map-section">
+                    <h2>Bản đồ các tỉnh thành</h2>
+                    <div id="map" class="map-container"></div>
+                    <div class="map-legend">
+                        <h4>Chú thích</h4>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #8B0000"></span>
+                            <span>Nhiều thay đổi nhất</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #FF6B6B"></span>
+                            <span>Thay đổi trung bình</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #FFE5E5"></span>
+                            <span>Ít thay đổi</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Charts Section -->
+                <section class="charts-section">
+                    <!-- Top Provinces Chart -->
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3>Top 15 tỉnh có nhiều thay đổi nhất</h3>
+                            <span class="chart-hint">💡 Nhấp vào cột để xem chi tiết</span>
+                        </div>
+                        <canvas id="top-provinces-chart"></canvas>
+                    </div>
+
+                    <!-- Merger Distribution Chart -->
+                    <div class="chart-container">
+                        <h3>Phân bố số lượng đơn vị sáp nhập</h3>
+                        <canvas id="merger-distribution-chart"></canvas>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Province Details Section -->
+            <section id="province-details" class="province-details" style="display: none;">
+                <h2 id="province-name">Chi tiết tỉnh</h2>
+                <div class="province-stats">
+                    <div class="stat-row">
+                        <span class="stat-label">Tổng đơn vị:</span>
+                        <span id="province-total" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Đơn vị sáp nhập:</span>
+                        <span id="province-merged" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Không thay đổi:</span>
+                        <span id="province-unchanged" class="stat-value">0</span>
+                    </div>
+                </div>
+                <div class="units-table-container">
+                    <h3>Danh sách đơn vị hành chính</h3>
+                    <table id="units-table" class="units-table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Phường/Xã mới</th>
+                                <th>Phường/Xã trước sáp nhập</th>
+                                <th>Loại</th>
+                            </tr>
+                        </thead>
+                        <tbody id="units-tbody">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>Dữ liệu từ <a href="https://vnexpress.net/tra-cuu-3-321-phuong-xa-tren-ca-nuoc-sau-sap-xep-4903454.html" target="_blank">VnExpress</a></p>
+            <p>© 2025 - Bản đồ tương tác đơn vị hành chính Việt Nam</p>
+        </footer>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loading" class="loading">
+        <div class="loading-spinner"></div>
+        <p>Đang tải dữ liệu...</p>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    
+    <!-- App JS -->
+    <script src="app.js"></script>
+</body>
+</html>
