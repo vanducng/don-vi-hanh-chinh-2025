@@ -243,7 +243,35 @@ h1 {
 }
 
 .chart-container canvas {
-    max-height: 370px;
+    max-height: 320px;
+}
+
+/* Filter status */
+.filter-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 15px;
+    padding: 10px 15px;
+    background: #e8f4fd;
+    border: 1px solid #3498db;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.clear-filter-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.clear-filter-btn:hover {
+    background: #c0392b;
 }
 
 /* Province Details */

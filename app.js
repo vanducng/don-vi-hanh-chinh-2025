@@ -4,6 +4,7 @@ let map = null;
 let provincesLayer = null;
 let searchTimeout = null;
 let searchIndex = null; // Pre-built search index for performance
+let currentFilter = null; // Current merger filter
 
 // Vietnam provinces coordinates (simplified for demonstration)
 const provinceCoordinates = {
@@ -99,6 +100,9 @@ async function init() {
         
         // Setup download functionality
         setupDownload();
+        
+        // Setup filter functionality
+        setupFilter();
         
         // Hide loading
         document.getElementById('loading').style.display = 'none';
@@ -325,7 +329,7 @@ function initCharts() {
     
     const mergerCtx = document.getElementById('merger-distribution-chart').getContext('2d');
     
-    new Chart(mergerCtx, {
+    const mergerChart = new Chart(mergerCtx, {
         type: 'pie',
         data: {
             labels: mergerLabels.map(label => `${label} đơn vị`),
@@ -342,24 +346,59 @@ function initCharts() {
                     '#e67e22',
                     '#95a5a6',
                     '#16a085'
+                ],
+                hoverBackgroundColor: [
+                    '#2980b9',
+                    '#c0392b',
+                    '#e67e22',
+                    '#27ae60',
+                    '#8e44ad',
+                    '#17a2b8',
+                    '#2c3e50',
+                    '#d35400',
+                    '#7f8c8d',
+                    '#138d75'
                 ]
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+                intersect: false
+            },
             plugins: {
                 legend: {
                     position: 'bottom',
                     labels: {
                         boxWidth: 12,
-                        padding: 10,
+                        padding: 8,
                         usePointStyle: true
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.parsed;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${context.label}: ${value} (${percentage}%)`;
+                        }
                     }
                 }
             },
             layout: {
                 padding: 10
+            },
+            onHover: (event, activeElements) => {
+                event.native.target.style.cursor = activeElements.length > 0 ? 'pointer' : 'default';
+            },
+            onClick: (event, activeElements) => {
+                if (activeElements.length > 0) {
+                    const index = activeElements[0].index;
+                    const mergerSize = parseInt(mergerLabels[index]);
+                    applyMergerFilter(mergerSize);
+                }
             }
         }
     });
@@ -588,12 +627,15 @@ function showNotification(message, type = 'info') {
     notification.textContent = message;
     
     // Add styles
+    const bgColor = type === 'success' ? '#27ae60' : 
+                   type === 'info' ? '#3498db' : '#e74c3c';
+    
     Object.assign(notification.style, {
         position: 'fixed',
         top: '20px',
         right: '20px',
         padding: '15px 20px',
-        backgroundColor: type === 'success' ? '#27ae60' : '#e74c3c',
+        backgroundColor: bgColor,
         color: 'white',
         borderRadius: '8px',
         boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
@@ -610,6 +652,158 @@ function showNotification(message, type = 'info') {
             notification.remove();
         }
     }, 3000);
+}
+
+// Setup filter functionality
+function setupFilter() {
+    const clearFilterBtn = document.getElementById('clear-filter');
+    clearFilterBtn.addEventListener('click', clearMergerFilter);
+}
+
+// Apply merger filter
+function applyMergerFilter(mergerSize) {
+    currentFilter = mergerSize;
+    
+    // Show filter status
+    const filterStatus = document.getElementById('filter-status');
+    const filterText = document.getElementById('filter-text');
+    
+    if (mergerSize === 1) {
+        filterText.textContent = `Hiển thị: Không sáp nhập`;
+    } else {
+        filterText.textContent = `Hiển thị: Sáp nhập ${mergerSize} đơn vị`;
+    }
+    
+    filterStatus.style.display = 'flex';
+    
+    // Filter and update the province details table
+    updateFilteredView();
+    
+    // Show notification
+    showNotification(`🔍 Đã lọc theo: ${mergerSize === 1 ? 'Không sáp nhập' : `Sáp nhập ${mergerSize} đơn vị`}`, 'info');
+}
+
+// Clear merger filter
+function clearMergerFilter() {
+    currentFilter = null;
+    
+    // Hide filter status
+    document.getElementById('filter-status').style.display = 'none';
+    
+    // Reset view
+    updateFilteredView();
+    
+    // Show notification
+    showNotification('✅ Đã bỏ lọc', 'success');
+}
+
+// Update filtered view
+function updateFilteredView() {
+    // Create filtered summary data
+    let filteredUnits = data.units;
+    
+    if (currentFilter !== null) {
+        filteredUnits = data.units.filter(unit => {
+            if (currentFilter === 1) {
+                return unit.is_unchanged; // Show unchanged units
+            } else {
+                return !unit.is_unchanged && unit.old_units.length === currentFilter;
+            }
+        });
+    }
+    
+    // Group by province for summary
+    const provinceSummary = {};
+    filteredUnits.forEach(unit => {
+        if (!provinceSummary[unit.province]) {
+            provinceSummary[unit.province] = {
+                name: unit.province,
+                units: [],
+                total_units: 0,
+                merged_units: 0,
+                unchanged_units: 0
+            };
+        }
+        
+        provinceSummary[unit.province].units.push(unit);
+        provinceSummary[unit.province].total_units++;
+        
+        if (unit.is_unchanged) {
+            provinceSummary[unit.province].unchanged_units++;
+        } else {
+            provinceSummary[unit.province].merged_units++;
+        }
+    });
+    
+    // Sort provinces by total units (descending)
+    const sortedProvinces = Object.values(provinceSummary)
+        .sort((a, b) => b.total_units - a.total_units);
+    
+    // Show filtered data in province details
+    if (sortedProvinces.length > 0) {
+        const topProvince = sortedProvinces[0];
+        showFilteredResults(sortedProvinces, filteredUnits.length);
+    } else {
+        showFilteredResults([], 0);
+    }
+}
+
+// Show filtered results
+function showFilteredResults(provinces, totalUnits) {
+    const provinceDetails = document.getElementById('province-details');
+    
+    if (totalUnits === 0) {
+        provinceDetails.style.display = 'block';
+        document.getElementById('province-name').textContent = 'Không tìm thấy dữ liệu';
+        document.getElementById('province-total').textContent = '0';
+        document.getElementById('province-merged').textContent = '0';
+        document.getElementById('province-unchanged').textContent = '0';
+        document.getElementById('units-tbody').innerHTML = '<tr><td colspan="4">Không có dữ liệu phù hợp với bộ lọc</td></tr>';
+        return;
+    }
+    
+    provinceDetails.style.display = 'block';
+    
+    if (currentFilter !== null) {
+        const filterDesc = currentFilter === 1 ? 'Không sáp nhập' : `Sáp nhập ${currentFilter} đơn vị`;
+        document.getElementById('province-name').textContent = `Kết quả lọc: ${filterDesc}`;
+    } else {
+        document.getElementById('province-name').textContent = 'Tất cả dữ liệu';
+    }
+    
+    // Calculate totals
+    const totalMerged = provinces.reduce((sum, p) => sum + p.merged_units, 0);
+    const totalUnchanged = provinces.reduce((sum, p) => sum + p.unchanged_units, 0);
+    
+    document.getElementById('province-total').textContent = totalUnits;
+    document.getElementById('province-merged').textContent = totalMerged;
+    document.getElementById('province-unchanged').textContent = totalUnchanged;
+    
+    // Update table with all filtered units
+    const tbody = document.getElementById('units-tbody');
+    tbody.innerHTML = '';
+    
+    let unitIndex = 1;
+    provinces.forEach(province => {
+        province.units.forEach(unit => {
+            const row = document.createElement('tr');
+            const typeText = unit.is_unchanged ? 'Không đổi' : `Sáp nhập ${unit.old_units.length} đơn vị`;
+            const oldUnitsText = unit.is_unchanged ? 'Không sáp nhập' : unit.old_units.join(', ');
+            
+            row.innerHTML = `
+                <td>${unitIndex}</td>
+                <td><strong>${unit.new_name}</strong><br><small>${unit.province}</small></td>
+                <td>${oldUnitsText}</td>
+                <td>${typeText}</td>
+            `;
+            
+            tbody.appendChild(row);
+            unitIndex++;
+        });
+    });
+    
+    // Scroll to results
+    provinceDetails.scrollIntoView({ behavior: 'smooth' });
 }
 
 // Initialize app when DOM is loaded

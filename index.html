@@ -94,8 +94,15 @@
 
                     <!-- Merger Distribution Chart -->
                     <div class="chart-container">
-                        <h3>Phân bố số lượng đơn vị sáp nhập</h3>
+                        <div class="chart-header">
+                            <h3>Phân bố số lượng đơn vị sáp nhập</h3>
+                            <span class="chart-hint">💡 Nhấp để lọc dữ liệu</span>
+                        </div>
                         <canvas id="merger-distribution-chart"></canvas>
+                        <div id="filter-status" class="filter-status" style="display: none;">
+                            <span id="filter-text"></span>
+                            <button id="clear-filter" class="clear-filter-btn">✕ Bỏ lọc</button>
+                        </div>
                     </div>
                 </section>
             </div>
