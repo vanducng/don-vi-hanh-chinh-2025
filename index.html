@@ -62,7 +62,12 @@
             <div class="content-grid">
                 <!-- Map Section -->
                 <section class="map-section">
-                    <h2>Bản đồ các tỉnh thành</h2>
+                    <div class="map-header">
+                        <h2>Bản đồ các tỉnh thành</h2>
+                        <button id="expand-map" class="expand-map-btn" title="Phóng to bản đồ">
+                            🔍 Phóng to
+                        </button>
+                    </div>
                     <div id="map" class="map-container"></div>
                     <div class="map-legend">
                         <h4>Chú thích</h4>
@@ -101,7 +106,7 @@
                         <canvas id="merger-distribution-chart"></canvas>
                         <div id="filter-status" class="filter-status" style="display: none;">
                             <span id="filter-text"></span>
-                            <button id="clear-filter" class="clear-filter-btn">✕ Bỏ lọc</button>
+                            <button id="clear-filter" class="clear-filter-btn">✕ Bỏ tất cả</button>
                         </div>
                     </div>
                 </section>
@@ -153,6 +158,17 @@
     <div id="loading" class="loading">
         <div class="loading-spinner"></div>
         <p>Đang tải dữ liệu...</p>
+    </div>
+
+    <!-- Fullscreen Map Modal -->
+    <div id="map-modal" class="map-modal" style="display: none;">
+        <div class="map-modal-content">
+            <div class="map-modal-header">
+                <h3>Bản đồ Đơn vị Hành chính Việt Nam 2025</h3>
+                <button id="close-map" class="close-map-btn">✕</button>
+            </div>
+            <div id="map-fullscreen" class="map-fullscreen"></div>
+        </div>
     </div>
 
     <!-- Leaflet JS -->
